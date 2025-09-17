@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Test - Video Proctoring</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .warning {
+        background: #fff3cd;
+        color: #856404;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      #testVideo {
+        width: 100%;
+        max-width: 400px;
+        height: 300px;
+        background: #000;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Video Proctoring System - Test Page</h1>
+    <p>
+      Use this page to test system components before running the full
+      application.
+    </p>
+
+    <div class="test-section">
+      <h2>📹 Camera Access Test</h2>
+      <button onclick="testCamera()">Test Camera Access</button>
+      <div id="cameraResult"></div>
+      <video
+        id="testVideo"
+        autoplay
+        muted
+        playsinline
+        style="display: none"
+      ></video>
+    </div>
+
+    <div class="test-section">
+      <h2>🤖 TensorFlow.js Test</h2>
+      <button onclick="testTensorFlow()">Test TensorFlow.js Loading</button>
+      <div id="tensorflowResult"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔍 Object Detection Test</h2>
+      <button onclick="testObjectDetection()" id="objectDetectionBtn" disabled>
+        Test Object Detection
+      </button>
+      <div id="objectDetectionResult"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔗 Backend API Test</h2>
+      <button onclick="testBackendAPI()">Test Backend Connection</button>
+      <div id="backendResult"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>💾 Local Storage Test</h2>
+      <button onclick="testLocalStorage()">Test Local Storage</button>
+      <div id="storageResult"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🌐 Browser Compatibility</h2>
+      <button onclick="testBrowserFeatures()">Check Browser Features</button>
+      <div id="browserResult"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+
+    <script>
+      let video = null;
+      let model = null;
+
+      function showResult(elementId, message, type = "success") {
+        const element = document.getElementById(elementId);
+        element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+      }
+
+      async function testCamera() {
+        try {
+          showResult("cameraResult", "Requesting camera access...", "warning");
+
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480 },
+            audio: true,
+          });
+
+          video = document.getElementById("testVideo");
+          video.srcObject = stream;
+          video.style.display = "block";
+
+          showResult(
+            "cameraResult",
+            "✅ Camera access successful! Video stream active.",
+            "success"
+          );
+          document.getElementById("objectDetectionBtn").disabled = false;
+        } catch (error) {
+          showResult(
+            "cameraResult",
+            `❌ Camera access failed: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      async function testTensorFlow() {
+        try {
+          showResult("tensorflowResult", "Loading TensorFlow.js...", "warning");
+
+          // Test basic TensorFlow operations
+          const a = tf.tensor2d([
+            [1, 2],
+            [3, 4],
+          ]);
+          const b = tf.tensor2d([
+            [5, 6],
+            [7, 8],
+          ]);
+          const c = a.matMul(b);
+
+          const result = await c.data();
+          showResult(
+            "tensorflowResult",
+            `✅ TensorFlow.js loaded successfully! Test calculation result: [${result.join(
+              ", "
+            )}]`,
+            "success"
+          );
+
+          // Clean up tensors
+          a.dispose();
+          b.dispose();
+          c.dispose();
+        } catch (error) {
+          showResult(
+            "tensorflowResult",
+            `❌ TensorFlow.js test failed: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      async function testObjectDetection() {
+        try {
+          showResult(
+            "objectDetectionResult",
+            "Loading COCO-SSD model...",
+            "warning"
+          );
+
+          if (!video || !video.srcObject) {
+            showResult(
+              "objectDetectionResult",
+              "❌ Please test camera access first!",
+              "error"
+            );
+            return;
+          }
+
+          model = await cocoSsd.load();
+          showResult(
+            "objectDetectionResult",
+            "✅ Object detection model loaded successfully!",
+            "success"
+          );
+
+          // Test detection on video
+          const predictions = await model.detect(video);
+          const detectedObjects = predictions.map(
+            (p) => `${p.class} (${Math.round(p.score * 100)}%)`
+          );
+
+          if (detectedObjects.length > 0) {
+            showResult(
+              "objectDetectionResult",
+              `✅ Object detection working! Detected: ${detectedObjects.join(
+                ", "
+              )}`,
+              "success"
+            );
+          } else {
+            showResult(
+              "objectDetectionResult",
+              "✅ Object detection working! No objects detected in current frame.",
+              "success"
+            );
+          }
+        } catch (error) {
+          showResult(
+            "objectDetectionResult",
+            `❌ Object detection test failed: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      async function testBackendAPI() {
+        try {
+          showResult(
+            "backendResult",
+            "Testing backend connection...",
+            "warning"
+          );
+
+          const response = await fetch("/api/health");
+          const data = await response.json();
+
+          if (response.ok) {
+            showResult(
+              "backendResult",
+              `✅ Backend API connected! Status: ${data.status}, Database: ${data.database}`,
+              "success"
+            );
+          } else {
+            showResult(
+              "backendResult",
+              `❌ Backend API error: ${data.error}`,
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult(
+            "backendResult",
+            `❌ Backend connection failed: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      function testLocalStorage() {
+        try {
+          const testKey = "proctoring_test";
+          const testValue = { timestamp: Date.now(), test: "data" };
+
+          // Test localStorage
+          localStorage.setItem(testKey, JSON.stringify(testValue));
+          const retrieved = JSON.parse(localStorage.getItem(testKey));
+          localStorage.removeItem(testKey);
+
+          if (retrieved && retrieved.timestamp === testValue.timestamp) {
+            showResult(
+              "storageResult",
+              "✅ Local storage working correctly!",
+              "success"
+            );
+          } else {
+            showResult(
+              "storageResult",
+              "❌ Local storage test failed!",
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult(
+            "storageResult",
+            `❌ Local storage error: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      function testBrowserFeatures() {
+        const features = [
+          {
+            name: "getUserMedia",
+            available: !!(
+              navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+            ),
+          },
+          {
+            name: "WebRTC",
+            available: !!(
+              window.RTCPeerConnection || window.webkitRTCPeerConnection
+            ),
+          },
+          {
+            name: "Canvas",
+            available: !!document.createElement("canvas").getContext,
+          },
+          { name: "LocalStorage", available: !!window.localStorage },
+          { name: "WebWorkers", available: !!window.Worker },
+          { name: "Fetch API", available: !!window.fetch },
+          { name: "Promise", available: !!window.Promise },
+          {
+            name: "ES6 Support",
+            available: (() => {
+              try {
+                eval("const test = () => {}");
+                return true;
+              } catch {
+                return false;
+              }
+            })(),
+          },
+        ];
+
+        const results = features
+          .map(
+            (feature) => `${feature.available ? "✅" : "❌"} ${feature.name}`
+          )
+          .join("<br>");
+
+        const allSupported = features.every((f) => f.available);
+        const type = allSupported ? "success" : "warning";
+        const message = `Browser Feature Support:<br>${results}`;
+
+        showResult("browserResult", message, type);
+      }
+
+      // Auto-run browser compatibility test on load
+      window.addEventListener("load", () => {
+        testBrowserFeatures();
+      });
+    </script>
+  </body>
+</html>

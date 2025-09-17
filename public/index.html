@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Proctoring System - Focus & Object Detection</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- TensorFlow.js for object detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+    <!-- COCO-SSD model for object detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+    <!-- MediaPipe for face detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎯 Video Proctoring System</h1>
+        <p>Focus & Object Detection for Video Interviews</p>
+      </header>
+
+      <main class="main-content">
+        <!-- Video Section -->
+        <div class="video-section">
+          <div class="video-container">
+            <video id="candidateVideo" autoplay muted playsinline></video>
+            <canvas id="faceDetectionCanvas"></canvas>
+            <canvas id="objectDetectionCanvas"></canvas>
+            <div class="video-controls">
+              <button id="startBtn" class="btn primary">Start Interview</button>
+              <button id="stopBtn" class="btn secondary" disabled>
+                Stop Interview
+              </button>
+              <div class="status">
+                <span id="recordingStatus" class="status-indicator"
+                  >⚫ Ready</span
+                >
+                <span id="timerDisplay">00:00:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Candidate Info -->
+          <div class="candidate-info">
+            <input
+              type="text"
+              id="candidateName"
+              placeholder="Enter candidate name..."
+              required
+            />
+            <input
+              type="text"
+              id="interviewPosition"
+              placeholder="Position/Role..."
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Detection Panel -->
+        <div class="detection-panel">
+          <h3>🔍 Real-time Detection</h3>
+
+          <!-- Focus Status -->
+          <div class="detection-category">
+            <h4>👁️ Focus Detection</h4>
+            <div class="status-grid">
+              <div class="status-item">
+                <span class="label">Face Present:</span>
+                <span id="faceStatus" class="status-value good"
+                  >✓ Detected</span
+                >
+              </div>
+              <div class="status-item">
+                <span class="label">Looking at Screen:</span>
+                <span id="focusStatus" class="status-value good"
+                  >✓ Focused</span
+                >
+              </div>
+              <div class="status-item">
+                <span class="label">Multiple Faces:</span>
+                <span id="multipleFaceStatus" class="status-value good"
+                  >✓ Single</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Object Detection -->
+          <div class="detection-category">
+            <h4>📱 Object Detection</h4>
+            <div class="detected-objects" id="detectedObjects">
+              <span class="no-objects">No suspicious objects detected</span>
+            </div>
+          </div>
+
+          <!-- Live Events Log -->
+          <div class="detection-category">
+            <h4>📋 Live Events</h4>
+            <div class="events-log" id="eventsLog">
+              <div class="event-item info">
+                <span class="timestamp">Ready</span>
+                <span class="message"
+                  >System initialized. Click 'Start Interview' to begin.</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Integrity Score -->
+      <div class="integrity-panel">
+        <h3>📊 Integrity Score</h3>
+        <div class="score-display">
+          <div class="score-circle">
+            <span id="integrityScore">100</span>
+            <small>/100</small>
+          </div>
+          <div class="score-breakdown">
+            <div class="score-item">
+              <span>Focus Violations:</span>
+              <span id="focusViolations">0</span>
+            </div>
+            <div class="score-item">
+              <span>Object Violations:</span>
+              <span id="objectViolations">0</span>
+            </div>
+            <div class="score-item">
+              <span>Absence Duration:</span>
+              <span id="absenceDuration">0s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Generation -->
+      <div class="report-section">
+        <button id="generateReportBtn" class="btn secondary" disabled>
+          📄 Generate Report
+        </button>
+        <button id="downloadVideoBtn" class="btn secondary" disabled>
+          🎥 Download Recording
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/detection.js"></script>
+    <script src="js/logging.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

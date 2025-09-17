@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Proctoring System - Demo Version</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎯 Video Proctoring System</h1>
+        <p>Focus & Object Detection Demo (Standalone Version)</p>
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+          "
+        >
+          <small
+            >⚡ This is a demo version that simulates detection without
+            requiring external ML libraries</small
+          >
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- Video Section -->
+        <div class="video-section">
+          <div class="video-container">
+            <video id="candidateVideo" autoplay muted playsinline></video>
+            <canvas id="detectionCanvas"></canvas>
+            <div class="video-controls">
+              <button id="startBtn" class="btn primary">Start Interview</button>
+              <button id="stopBtn" class="btn secondary" disabled>
+                Stop Interview
+              </button>
+              <button
+                id="testObjectBtn"
+                class="btn secondary"
+                disabled
+                style="font-size: 0.8rem"
+              >
+                🧪 Test Object Detection
+              </button>
+              <div class="status">
+                <span id="recordingStatus" class="status-indicator ready"
+                  >⚫ Ready</span
+                >
+                <span id="timerDisplay">00:00:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Candidate Info -->
+          <div class="candidate-info">
+            <input
+              type="text"
+              id="candidateName"
+              placeholder="Enter candidate name..."
+              required
+            />
+            <input
+              type="text"
+              id="interviewPosition"
+              placeholder="Position/Role..."
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Detection Panel -->
+        <div class="detection-panel">
+          <h3>🔍 Real-time Detection (Simulated)</h3>
+
+          <!-- Focus Status -->
+          <div class="detection-category">
+            <h4>👁️ Focus Detection</h4>
+            <div class="status-grid">
+              <div class="status-item">
+                <span class="label">Face Present:</span>
+                <span id="faceStatus" class="status-value good"
+                  >✓ Detected</span
+                >
+              </div>
+              <div class="status-item">
+                <span class="label">Looking at Screen:</span>
+                <span id="focusStatus" class="status-value good"
+                  >✓ Focused</span
+                >
+              </div>
+              <div class="status-item">
+                <span class="label">Multiple Faces:</span>
+                <span id="multipleFaceStatus" class="status-value good"
+                  >✓ Single</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Object Detection -->
+          <div class="detection-category">
+            <h4>📱 Object Detection</h4>
+            <div class="detected-objects" id="detectedObjects">
+              <span class="no-objects">No suspicious objects detected</span>
+            </div>
+          </div>
+
+          <!-- Live Events Log -->
+          <div class="detection-category">
+            <h4>📋 Live Events</h4>
+            <div class="events-log" id="eventsLog">
+              <div class="event-item info">
+                <span class="timestamp">Ready</span>
+                <span class="message"
+                  >Demo system initialized. Click 'Start Interview' to
+                  begin.</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Integrity Score -->
+      <div class="integrity-panel">
+        <h3>📊 Integrity Score</h3>
+        <div class="score-display">
+          <div class="score-circle">
+            <span id="integrityScore">100</span>
+            <small>/100</small>
+          </div>
+          <div class="score-breakdown">
+            <div class="score-item">
+              <span>Focus Violations:</span>
+              <span id="focusViolations">0</span>
+            </div>
+            <div class="score-item">
+              <span>Object Violations:</span>
+              <span id="objectViolations">0</span>
+            </div>
+            <div class="score-item">
+              <span>Absence Duration:</span>
+              <span id="absenceDuration">0s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Generation -->
+      <div class="report-section">
+        <button id="generateReportBtn" class="btn secondary" disabled>
+          📄 Generate Report
+        </button>
+        <a href="index.html" class="btn primary">🚀 Full Version</a>
+      </div>
+
+      <!-- Demo Info -->
+      <div
+        style="
+          background: white;
+          border-radius: 15px;
+          padding: 20px;
+          margin-top: 20px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        "
+      >
+        <h3>📝 Demo Information</h3>
+        <ul style="line-height: 1.6">
+          <li>
+            <strong>Face Detection:</strong> Simulated with 90% accuracy rate
+          </li>
+          <li>
+            <strong>Focus Monitoring:</strong> Random violations generated for
+            demonstration
+          </li>
+          <li>
+            <strong>Object Detection:</strong> Occasional suspicious objects
+            detected randomly
+          </li>
+          <li>
+            <strong>Scoring System:</strong> Points deducted based on violation
+            type
+          </li>
+          <li>
+            <strong>Report Generation:</strong> CSV export with all session data
+          </li>
+        </ul>
+        <p>
+          <strong>Note:</strong> For full AI-powered detection, use the complete
+          version with TensorFlow.js and MediaPipe integration.
+        </p>
+      </div>
+    </div>
+
+    <script src="js/simple-demo.js"></script>
+  </body>
+</html>

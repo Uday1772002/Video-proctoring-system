@@ -14,6 +14,9 @@ class VideoProctoringApp {
     this.integrityScorer = new IntegrityScorer();
 
     this.sessionId = null; // Store backend sessionId
+    this.drowsinessDetectionActive = false;
+
+    loadFaceMeshModel(); // Load Face Mesh model at startup
 
     this.initializeEventListeners();
     this.initializeVideoStream();
@@ -123,6 +126,8 @@ class VideoProctoringApp {
       });
       const data = await response.json();
       this.sessionId = data.sessionId;
+      this.drowsinessDetectionActive = true;
+      this.runDrowsinessLoop(); // Start drowsiness detection loop
 
       this.eventLogger.logEvent(
         `Interview started for ${candidateName} - ${interviewPosition}`,
@@ -313,6 +318,17 @@ class VideoProctoringApp {
     URL.revokeObjectURL(url);
 
     this.eventLogger.logEvent("Interview recording downloaded", "info");
+  }
+
+  runDrowsinessLoop() {
+    const video = document.getElementById("candidateVideo");
+    const loop = async () => {
+      if (this.drowsinessDetectionActive) {
+        await runDrowsinessDetection(video, this.sessionId);
+        requestAnimationFrame(loop);
+      }
+    };
+    loop();
   }
 }
 

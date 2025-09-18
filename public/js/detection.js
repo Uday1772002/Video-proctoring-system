@@ -726,3 +726,63 @@ class FaceDetectionModule {
     return Date.now() - this.lastFocusTime < 2000;
   }
 }
+
+// Eye closure/drowsiness detection using MediaPipe Face Mesh
+let faceMesh = null;
+let drowsinessStart = null;
+let isDrowsy = false;
+const EAR_THRESHOLD = 0.22; // Typical threshold for closed eyes
+const DROWSY_DURATION = 2000; // ms
+
+async function loadFaceMeshModel() {
+  if (!window.faceLandmarksDetection) {
+    await import(
+      "https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"
+    );
+    await import("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core");
+    await import("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl");
+  }
+  faceMesh = await window.faceLandmarksDetection.load(
+    window.faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+  );
+}
+
+function calculateEAR(landmarks, left = true) {
+  // Use 6 points for each eye
+  // Left eye: [33, 160, 158, 133, 153, 144]
+  // Right eye: [263, 387, 385, 362, 380, 373]
+  const idx = left
+    ? [33, 160, 158, 133, 153, 144]
+    : [263, 387, 385, 362, 380, 373];
+  const p = idx.map((i) => landmarks[i]);
+  // EAR formula
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const ear = (dist(p[1], p[5]) + dist(p[2], p[4])) / (2.0 * dist(p[0], p[3]));
+  return ear;
+}
+
+async function runDrowsinessDetection(video, sessionId) {
+  if (!faceMesh) return;
+  const predictions = await faceMesh.estimateFaces({ input: video });
+  if (predictions.length > 0) {
+    const landmarks = predictions[0].scaledMesh;
+    const leftEAR = calculateEAR(landmarks, true);
+    const rightEAR = calculateEAR(landmarks, false);
+    const avgEAR = (leftEAR + rightEAR) / 2;
+    if (avgEAR < EAR_THRESHOLD) {
+      if (!drowsinessStart) drowsinessStart = Date.now();
+      if (!isDrowsy && Date.now() - drowsinessStart > DROWSY_DURATION) {
+        isDrowsy = true;
+        logEventToBackend(
+          sessionId,
+          "drowsiness",
+          "Eye closure detected (drowsiness)"
+        );
+        // Optionally show UI alert here
+      }
+    } else {
+      drowsinessStart = null;
+      isDrowsy = false;
+    }
+  }
+}

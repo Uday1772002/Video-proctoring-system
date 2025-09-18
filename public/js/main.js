@@ -119,7 +119,7 @@ class VideoProctoringApp {
       this.integrityScorer.initialize(candidateName, interviewPosition);
 
       // Start backend session
-      const response = await fetch("http://localhost:5001/api/sessions/start", {
+      const response = await fetch(getApiUrl(CONFIG.ENDPOINTS.START_SESSION), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ candidateName, position: interviewPosition }),
@@ -210,7 +210,7 @@ class VideoProctoringApp {
 
     // End backend session
     if (this.sessionId) {
-      await fetch(`http://localhost:5001/api/sessions/${this.sessionId}/end`, {
+      await fetch(getApiUrl(CONFIG.ENDPOINTS.END_SESSION, { sessionId: this.sessionId }), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -336,7 +336,7 @@ class VideoProctoringApp {
 async function logEventToBackend(sessionId, eventType, message) {
   if (!sessionId) return;
   try {
-    await fetch(`http://localhost:5001/api/sessions/${sessionId}/events`, {
+    await fetch(getApiUrl(CONFIG.ENDPOINTS.LOG_EVENT, { sessionId }), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ eventType, message }),

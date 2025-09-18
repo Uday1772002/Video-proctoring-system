@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: video-proctoring-system
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+databases:
+  - name: mongodb
+    plan: starter

@@ -210,16 +210,19 @@ class VideoProctoringApp {
 
     // End backend session
     if (this.sessionId) {
-      await fetch(getApiUrl(CONFIG.ENDPOINTS.END_SESSION, { sessionId: this.sessionId }), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          finalScore: this.integrityScorer.finalScore,
-          violations: this.integrityScorer.violations || [],
-          events: this.eventLogger.getAllEvents(),
-          duration: this.getInterviewDuration(),
-        }),
-      });
+      await fetch(
+        getApiUrl(CONFIG.ENDPOINTS.END_SESSION, { sessionId: this.sessionId }),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            finalScore: this.integrityScorer.finalScore,
+            violations: this.integrityScorer.violations || [],
+            events: this.eventLogger.getAllEvents(),
+            duration: this.getInterviewDuration(),
+          }),
+        }
+      );
     }
 
     this.eventLogger.logEvent("Interview session completed", "info");
